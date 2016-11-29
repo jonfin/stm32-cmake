@@ -1,35 +1,82 @@
 IF(STM32_FAMILY STREQUAL "F4")
 	IF(STM_BOARD STREQUAL "STM32F429I-Discovery")
-		SET(BSP_COMPONENTS eeprom
-			    gyroscope
-			    io
-			    lcd
-			    sdram
-			    ts)
+		SET(BSP_COMPONENTS
+			eeprom
+			gyroscope
+			io
+			lcd
+			sdram
+			ts
+			)
 		SET(BSP_PREFIX stm32f429i_discovery_)
 		SET(BSP_HEADERS stm32f429i_discovery.h)
 		SET(BSP_SRC stm32f429i_discovery.c)
 	ENDIF()
-	set(COMMON_COMPONENTS ampire480272
-			      ampire640480
-			      cs43l22
-			      exc7200
-			      ili9325
-			      ili9341
-			      l3gd20
-			      lis302dl
-			      lis3dsh
-			      lsm303dlhc
-			      mfxstm32l152
-			      n25q256a
-			      ov2640
-			      s5k5cag
-			      st7735
-			      stmpe1600
-			      stmpe811
-			      ts3510
-			      wm8994
-			      )
+	IF(STM_BOARD STREQUAL "STM324x9I_EVAL")
+		SET(BSP_COMPONENTS
+			audio
+			camera
+			eeprom
+			io
+			lcd
+			nor
+			sd
+			sdram
+			sram
+			ts
+			)
+		SET(BSP_PREFIX stm324x9i_eval_)
+		SET(BSP_HEADERS stm324x9i_eval.h)
+		SET(BSP_SRC stm324x9i_eval.c)
+	ENDIF()
+	IF(STM_BOARD STREQUAL "STM32469I_EVAL")
+		SET(BSP_COMPONENTS
+			audio
+			camera
+			eeprom
+			io
+			lcd
+			nor
+			qspi
+			sd
+			sdram
+			sram
+			ts
+			)
+		SET(BSP_PREFIX stm32469i_eval_)
+		SET(BSP_HEADERS stm32469i_eval.h)
+		SET(BSP_SRC stm32469i_eval.c)
+	ENDIF()
+	SET(COMMON_HEADERS
+		ampire480272
+		ampire640480
+		n25q128a
+		n25q256a
+		n25q512a
+		s25fl512s
+		)
+	set(COMMON_COMPONENTS
+		cs43l22
+		exc7200
+		ft6x06
+		ili9325
+		ili9341
+		l3gd20
+		lis302dl
+		lis3dsh
+		ls016b8uy
+		lsm303dlhc
+		mfxstm32l152
+		otm8009a
+		ov2640
+		s5k5cag
+		st7735
+		st7789h2
+		stmpe1600
+		stmpe811
+		ts3510
+		wm8994
+		)
 ELSEIF(STM32_FAMILY STREQUAL "F0")
 	IF(STM_BOARD STREQUAL "STM32F0308-Discovery")
 		SET(BSP_COMPONENTS "")
@@ -46,7 +93,7 @@ ELSEIF(STM32_FAMILY STREQUAL "F0")
 ENDIF()
 
 IF(NOT STM32BSP_FIND_COMPONENTS)
-	SET(STM32BSP_FIND_COMPONENTS ${BSP_COMPONENTS} ${COMMON_COMPONENTS})
+	SET(STM32BSP_FIND_COMPONENTS ${BSP_COMPONENTS} ${COMMON_COMPONENTS} ${COMMON_HEADERS})
 	MESSAGE(STATUS "No STM32BSP components selected, using all: ${STM32BSP_FIND_COMPONENTS}")
 ENDIF()
 
@@ -57,11 +104,16 @@ FOREACH(cmp ${STM32BSP_FIND_COMPONENTS})
 	IF(${STM32BSP_FOUND_INDEX} LESS 0)
 		LIST(FIND COMMON_COMPONENTS ${cmp} COMMON_FOUND_INDEX)
 		IF(${COMMON_FOUND_INDEX} LESS 0)
-			MESSAGE(FATAL_ERROR "Unknown STM32BSP component: ${cmp}. Available components: ${BSP_COMPONENTS} and ${COMMON_COMPONENTS}")
+			LIST(FIND COMMON_HEADERS ${cmp} COMMON_HEADERS_INDEX)
+			IF(${COMMON_HEADERS_INDEX} LESS 0)
+				MESSAGE(FATAL_ERROR "Unknown STM32BSP component: ${cmp}. Available components: ${BSP_COMPONENTS}, ${COMMON_COMPONENTS} and ${COMMON_HEADERS}")
+			ELSE()
+				LIST(APPEND BSP_COMMON_HEADERS ${cmp})
+			ENDIF()
 		ELSE()
 			LIST(APPEND BSP_COMMON_HEADERS ${cmp})
 			LIST(APPEND BSP_SRC ${cmp}.c)
-    		ENDIF()
+		ENDIF()
 	ELSE()
 		LIST(APPEND BSP_HEADERS ${BSP_PREFIX}${cmp}.h)
 		LIST(APPEND BSP_SRC ${BSP_PREFIX}${cmp}.c)
