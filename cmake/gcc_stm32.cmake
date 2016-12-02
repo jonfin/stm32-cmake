@@ -84,14 +84,19 @@ FUNCTION(STM32_ADD_FLASH_DEBUG_TARGETS TARGET)
 		SET(OPENOCD_CONFIG "board/stm32${STM32_FAMILY_LOWER}${STM32_BOARD_TYPE_LOWER}.cfg")
 		MESSAGE(STATUS "Selected OPENOCD_CONFIG: ${OPENOCD_CONFIG}")
 	ENDIF()
-	MESSAGE("openocd -f ${OPENOCD_CONFIG} -c \"program  ${FILENAME}.bin verify reset exit\"")
+
+	find_program(OPENOCD_BIN
+		openocd
+		HINTS ${OPENOCD_DIR}
+		)
+
 	ADD_CUSTOM_TARGET(flash
 		DEPENDS ${TARGET}
-		COMMAND openocd -f ${OPENOCD_CONFIG} -c "program  ${FILENAME} verify reset exit"
+		COMMAND ${OPENOCD_BIN} -f ${OPENOCD_CONFIG} -c "program ${FILENAME} verify reset exit"
 		)
 	ADD_CUSTOM_TARGET(debug 
 		DEPENDS ${TARGET}
-		COMMAND openocd -f ${OPENOCD_CONFIG}
+		COMMAND ${OPENOCD_BIN} -f ${OPENOCD_CONFIG}
 		)
 ENDFUNCTION()
 
