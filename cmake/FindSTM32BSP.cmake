@@ -154,7 +154,7 @@ ENDFOREACH()
 FOREACH(file ${BSP_SRC})
 	FIND_FILE(BSP_${file}_FILE ${file}.c
 		HINTS ${STM32Cube_DIR}/Drivers/BSP/${STM_BOARD} ${STM32Cube_DIR}/Drivers/BSP/Components
-		PATH_SUFFIXES ${subfolder}
+		PATH_SUFFIXES ${file}
 		CMAKE_FIND_ROOT_PATH_BOTH
 		)
 	MESSAGE(STATUS "BSP file is ${BSP_${file}_FILE}")
